@@ -2,6 +2,7 @@ import express from "express"
 import cors from "cors"
 import { db } from "./db.config.js"
 import { routerProducts } from "./routes/products.route.js"
+import { routerMovements } from "./routes/movements.route.js"
 
 const app = express()
 
@@ -14,6 +15,7 @@ app.use(cors(
 ))
 
 app.use("/api", routerProducts)
+app.use("/api", routerMovements)
 
 db.query('SELECT NOW()')
     .then(() => { console.log("Database Conected") })
