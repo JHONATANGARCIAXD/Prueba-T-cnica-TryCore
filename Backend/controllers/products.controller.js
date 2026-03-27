@@ -33,7 +33,7 @@ productsCtrl.getProducts = async (req, res) => {
             
             ${query}`, params)
 
-        res.json({ products: products.rows, totalRows: totalRows.rows[0].count });
+        res.json({ msg: { products: products.rows, totalRows: totalRows.rows[0].count } });
     }
     catch (error) {
         console.error(error);
