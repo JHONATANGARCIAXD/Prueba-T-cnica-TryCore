@@ -23,7 +23,8 @@
 
 
         <q-drawer v-model="leftDrawerOpen" :width="250"
-            side="left" class="flex column full-height drawer-bg">
+            style="background: linear-gradient(180deg, #1f172a 0%, #16111f 100%) !important; padding: 0;"
+            side="left" class="flex column full-height">
 
             <div class="sidebar-div">
                 <div class="sidebar-header">
@@ -101,11 +102,10 @@ const itemsMenu = [
 ]
 </script>
 
-<style scoped lang="sass">
-@import '../quasar-variables.sass'
+<style scoped>
 /* header */
 .modern-header {
-    background: linear-gradient(135deg, $secondary 0%, $dark 100%);
+    background: linear-gradient(135deg, #0f2348 0%, #061621 100%);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
@@ -184,7 +184,7 @@ const itemsMenu = [
 }
 
 .active-menu-item {
-    background: linear-gradient(135deg, $primary 0%, $accent 100%);
+    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
     color: #ffffff;
     box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
 }
@@ -207,12 +207,7 @@ const itemsMenu = [
 }
 
 .modern-footer {
-    background: linear-gradient(135deg, $secondary 0%, $dark 100%);
+    background: linear-gradient(135deg, #0f2348 0%, #061621 100%);
     color: #ffffff;
-}
-
-.drawer-bg {
-    background: linear-gradient(180deg, $dark-page 0%, #16111f 100%) !important;
-    padding: 0;
 }
 </style>

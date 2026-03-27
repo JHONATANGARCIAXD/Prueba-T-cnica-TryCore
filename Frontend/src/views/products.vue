@@ -12,9 +12,8 @@
                         <div class="text-subtitle2 text-grey-6">Administra tu inventario</div>
                     </div>
                 </div>
-                <Button label="Agregar" icon="add"
-                    @click="op = 0, modalProducto = true, cleanInfo(), generateReference()" color="primary" size="md"
-                    to="/app/productos/new" />
+                <Button label="Agregar" icon="add" @click="modalProducto = true, cleanInfo()" color="primary"
+                    size="md" />
             </div>
         </div>
 
@@ -24,7 +23,7 @@
                     @update:model-value="getproductos" label-color="primary" dense clearable outlined />
             </div>
             <div class="col-1 col-xs-11 col-sm-3 col-md-2">
-                <q-select v-model="filters.status" label="Estado" :options="status" emit-value map-options
+                <q-select v-model="filters.stock" label="Estado" :options="status" emit-value map-options
                     @update:model-value="getproductos" label-color="primary" dense outlined />
             </div>
         </div>
@@ -36,8 +35,9 @@
 
                 <template v-slot:body-cell-stock="props">
                     <td class="text-center">
-                        <Qchip :color="rangeStock(props.row.stock).color" text-color="white"
-                            :label="rangeStock(props.row.stock).label + ' (' + props.row.stock + ')'" size="ld" />
+                        <Qchip :color="rangeStock(props.row.status).color" text-color="white"
+                            :label="rangeStock(props.row.status).label + ' (' + props.row.current_stock + ')'"
+                            size="ld" />
                     </td>
                 </template>
 
@@ -65,59 +65,108 @@
         </q-card>
     </q-page>
 
-    <q-dialog v-model="spinner" persistent>
-        <q-card>
-            <q-card-section>
-                <div>
-                    <q-spinner-ios color="primary" size="3em" />
-                </div>
-            </q-card-section>
-        </q-card>
-    </q-dialog>
+    <!-- MODAL CREAR PRODUCTO -->
+    <Modal v-model="modalProducto" :form-ref="true" @submit="saveProduct" :persistent="true" width="600px">
+        <template #header>
+            <div class="flex justify-between items-center">
+                <div class="text-h6 q-px-md q-py-md">Crear Producto</div>
+
+                <Button icon="close" flat round dense v-close-popup text-color="white" :outline="false"
+                    :rounded="false" />
+            </div>
+        </template>
+
+        <template #body>
+            <div class="q-gutter-md">
+                <q-input v-model="formProduct.name" label="Nombre del Producto" outlined counter maxlength="50"
+                    :rules="[val => !!val || 'Nombre es requerido']">
+                    <template v-slot:prepend>
+                        <q-icon name="shopping_bag" color="primary" />
+                    </template>
+                </q-input>
+
+                <q-input v-model="formProduct.price" label="Precio" outlined class="col"
+                    :rules="[val => !!val || 'Precio es requerido', val => val > 0 || 'Precio debe ser mayor a 0']">
+                    <template v-slot:prepend>
+                        <q-icon name="attach_money" color="positive" />
+                    </template>
+                </q-input>
+
+                <q-input v-model="formProduct.currentStock" label="Stock Actual" outlined class="col"
+                    :rules="[val => !!val || 'Stock es requerido', val => val >= 0 || 'Stock no puede ser negativo']">
+                    <template v-slot:prepend>
+                        <q-icon name="inventory" color="info" />
+                    </template>
+                </q-input>
+
+                <q-input v-model="formProduct.minStock" label="Stock Mínimo (Alerta)" outlined
+                    :rules="[val => !!val || 'Stock mínimo es requerido', val => val >= 0 || 'Stock mínimo no puede ser negativo']">
+                    <template v-slot:prepend>
+                        <q-icon name="warning" color="warning" />
+                    </template>
+                </q-input>
+            </div>
+        </template>
+
+        <template #footer>
+            <div class="row justify-end q-gutter-md q-pa-md">
+                <Button label="Cancelar" v-close-popup color="negative" outline="false" />
+                <Button label="Guardar" :loading="spinnerBtn" type="submit"  outline="false" color="primary" />
+            </div>
+        </template>
+    </Modal>
 
 </template>
 <script setup>
 import { ref, onMounted } from 'vue';
-import { getData, postData, putData } from '../services/apiclient.js';
+import { getData, postData } from '../services/apiclient.js';
 import { formatters } from '../composables/useFormats.js';
 import { useNotifications } from '../composables/useNotifications.js';
 import buttonsTable from '../components/buttonsTable.vue';
 import Qchip from '../components/Qchip.vue';
 import Table from '../components/Table.vue';
 import Button from '../components/button.vue';
+import Modal from '../components/Modal.vue';
 
 const { error, success } = useNotifications();
 
-const modalPreview = ref(false);
-const selectedProduct = ref(null);
+// Modal variables
+const modalProducto = ref(false);
 
-// Reactive variables
-let spinner = ref(false);
+
+const formProduct = ref({
+    name: '',
+    price: '',
+    currentStock: '',
+    minStock: ''
+});
+
+let spinnerBtn = ref(false);
 let loandingTable = ref(true)
 
 
 const filters = ref({
     search: '',
-    status: ''
+    stock: '',
 })
 
-const slide = ref(1)
+const status = ref([
+    { label: 'Todos', value: '' },
+    { label: 'Ver Agotados', value: "ALERT" },
+    { label: 'Ver Con Stock', value: "OK" }
+])
 
 const columns = ref([
-    { name: 'referenceCode', align: 'center', label: 'Referencia', field: 'code_reference' },
+    { name: 'id', align: 'center', label: 'Id', field: 'id' },
     { name: 'name', align: 'center', label: 'Nombre', field: 'name' },
     { name: 'price', align: "center", label: 'Precio', field: 'price', format: val => formatters.price(val) },
-    { name: 'stock', align: "center", label: 'Stock', field: 'stock' },
-    { name: 'Ultima Actualización', align: "center", label: 'Última Actualización', field: 'updated_at', format: val => formatters.date(val) },
-    { name: 'status', align: "center", label: 'Estado' },
-    { name: 'options', align: "center", label: "Opciones" }
+    { name: 'stock', align: "center", label: 'Stock', field: 'current_stock' },
+    { name: 'stockmin', align: "center", label: 'Alerta Stock', field: 'min_stock' },
 ]);
 
 const rangeStock = (stock) => {
-    if (stock > 100) return { label: 'Muy Alto', color: 'blue' };
-    if (stock > 50) return { label: 'Alto', color: 'green' };
-    if (stock > 10) return { label: 'Medio', color: 'orange' };
-    if (stock > 0) return { label: 'Bajo', color: 'red' };
+    if (stock == "OK") return { label: 'OK', color: 'green' };
+    if (stock == "ALERT") return { label: 'Alert', color: 'red' };
     return { label: 'Agotado', color: 'grey' };
 }
 
@@ -142,12 +191,12 @@ const getPagination = (props) => {
 const getproductos = async () => {
     loandingTable.value = true
     try {
-        const res = await getData(`/products/getProducts`, {
+        const res = await getData(`/products`, {
             params: {
                 page: pagination.value.page,
                 limit: pagination.value.rowsPerPage,
                 search: filters.value.search,
-                status: filters.value.status
+                stock: filters.value.stock
             }
         })
 
@@ -158,6 +207,7 @@ const getproductos = async () => {
         rows.value = res.msg.products;
 
     } catch (err) {
+        console.log(err);
         error(err.response.data.errors[0].msg);
     }
     finally {
@@ -166,26 +216,39 @@ const getproductos = async () => {
 
 };
 
-const updateStatus = async (props) => {
-    try {
-        let endpoint = props.status == 0 ? 'inactive' : 'active'
-
-        console.log(props.id, endpoint);
-
-        let res = await putData(`/products/${endpoint}Products/${props.id}`);
-
-        getproductos();
-        success(res.msg);
-
-    } catch (err) {
-        error(err.response.data.errors[0].msg);
+const cleanInfo = () => {
+    formProduct.value = {
+        name: '',
+        price: '',
+        currentStock: '',
+        minStock: ''
     }
-};
+}
 
-const openPreview = (product) => {
-    selectedProduct.value = product;
-    modalPreview.value = true;
-};
+const saveProduct = async () => {
+    spinnerBtn.value = true;
+    try {
+        const res = await postData('/products', {
+            name: formProduct.value.name,
+            price: parseInt(formProduct.value.price),
+            current_stock: parseInt(formProduct.value.currentStock),
+            min_stock: parseInt(formProduct.value.minStock),
+        });
+        success(res.msg);
+        modalProducto.value = false;
+        cleanInfo();
+        getproductos();
+    } catch (err) {
+        console.log(err);
+        error(err.response.data?.errors?.[0] || err.response.data.msg || 'Error al crear el producto');
+    } finally {
+        spinnerBtn.value = false;
+    }
+}
+
+onMounted(() => {
+    getproductos()
+})
 
 </script>
 
