@@ -4,13 +4,18 @@ const productsCtrl = {};
 
 productsCtrl.getProducts = async (req, res) => {
     try {
-        const { search, page = 1, limit = 10 } = req.query;
+        const { search, stock,  page = 1, limit = 10 } = req.query;
         let filter = []
         let params = []
 
         if (search) {
             filter.push(`(p.name::text ILIKE $${params.length + 1} OR p.id::text ILIKE $${params.length + 1})`);
             params.push(`%${search}%`);
+        }
+
+        if(stock){
+            filter.push(`CASE WHEN p.current_stock <= p.min_stock THEN 'ALERT' ELSE 'OK' END = $${params.length + 1}`)
+            params.push(stock)
         }
 
         let query = `FROM product p`;
@@ -21,7 +26,7 @@ productsCtrl.getProducts = async (req, res) => {
         const totalRows = await db.query(`SELECT (COUNT(DISTINCT p.id)::INT)  ${query}`, params)
 
         const offset = (page - 1) * limit
-        query += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`
+        query += ` ORDER BY p.id DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2} `
         params.push(Number(limit), Number(offset))
 
 
@@ -33,7 +38,7 @@ productsCtrl.getProducts = async (req, res) => {
             
             ${query}`, params)
 
-        res.json({ msg: { products: products.rows, totalRows: totalRows.rows[0].count } });
+        res.status(200).json({ msg: { products: products.rows, totalRows: totalRows.rows[0].count } });
     }
     catch (error) {
         console.error(error);
@@ -50,20 +55,6 @@ productsCtrl.saveProducts = async (req, res) => {
         );
 
         res.status(201).json({ msg: "Producto creado exitosamente." });
-    }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({ msg: "Ha ocurrido un error en el servidor, Intenta mas tarde." });
-    }
-};
-
-productsCtrl.alertStock = async (req, res) => {
-    try {
-        const products = await db.query(
-            `SELECT p.* FROM product p WHERE p.current_stock <= p.min_stock`
-        );
-
-        res.json({ products: products.rows });
     }
     catch (error) {
         console.error(error);

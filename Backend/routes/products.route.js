@@ -15,6 +15,5 @@ routerProducts.post("/products", [
     valideFields
 ], productsCtrl.saveProducts);
 
-routerProducts.get("/products/alerts", productsCtrl.alertStock);
 
 export { routerProducts }

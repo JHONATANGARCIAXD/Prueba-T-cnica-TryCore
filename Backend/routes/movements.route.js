@@ -6,6 +6,8 @@ import { productsHelper } from "../helpers/products.helper.js";
 
 const routerMovements = Router();
 
+routerMovements.get("/movements", movementsCtrl.getMovements);
+
 routerMovements.post("/movements", [
     check("movements", "El campo movements es requerido").notEmpty().bail().isArray().withMessage("El campo movements debe ser un array").bail().custom(productsHelper.valideProduct),
     check("movements.*.product_id", "El campo product_id es requerido").notEmpty(),

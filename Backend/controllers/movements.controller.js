@@ -2,6 +2,48 @@ import { db } from "../db.config.js";
 
 const movementsCtrl = {};
 
+movementsCtrl.getMovements = async (req, res) => {
+    try {
+        const { page = 1, limit = 10, dateFrom, dateTo, type } = req.query;
+        let filter = []
+        let params = []
+
+        if (type) {
+            filter.push(`m.type = $${params.length + 1}`);
+            params.push(type);
+        }
+        
+        if (dateFrom) {
+            filter.push(`m.created_at >= $${params.length + 1}`);
+            params.push(dateFrom);
+        }
+
+        if (dateTo) {
+            filter.push(`m.created_at <= $${params.length + 1}`);
+            params.push(dateTo);
+        }
+
+        let query = `FROM movement m JOIN product p ON m.product_id = p.id`;
+        if (filter.length > 0) {
+            query += ' WHERE ' + filter.join(` AND `)
+        }
+
+        const totalRows = await db.query(`SELECT (COUNT(*)::INT)  ${query}`, params)
+
+        const offset = (page - 1) * limit
+        query += ` ORDER BY m.id DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2} `
+        params.push(Number(limit), Number(offset))
+
+        const movements = await db.query(`SELECT m.id, m.product_id, p.name as product_name, m.quantity, m.type, m.created_at ${query}`, params)
+
+        res.status(200).json({ msg: { movements: movements.rows, totalRows: totalRows.rows[0].count } });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: "Ha ocurrido un error en el servidor, Intenta mas tarde." });
+    }
+};
+
 movementsCtrl.saveMovements = async (req, res) => {
     const client = await db.connect();
     try {
