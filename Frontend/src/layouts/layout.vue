@@ -96,7 +96,6 @@ const logout = async () => {
 }
 
 const itemsMenu = [
-    { name: 'Inicio', icon: 'home', to: '/app/home' },
     { name: 'Productos', icon: 'shopping_cart', to: '/app/products' },
     {name: 'Movimientos', icon: 'swap_horiz', to: '/app/movements'},
 ]

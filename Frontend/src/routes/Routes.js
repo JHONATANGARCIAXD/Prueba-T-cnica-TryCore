@@ -1,25 +1,19 @@
 import { createRouter, createWebHashHistory } from "vue-router"
 import Layout from "../layouts/layout.vue"
 import Login from "../views/login.vue"
-import Home from "../views/home.vue"
 import Products from "../views/products.vue"
+import Movements from "../views/movements.vue"
 
 const routes = [
     { path: "/", component: Login },
     {
         path: "/app", component: Layout, children: [
-            { path: "home", component: Home },
-            { path: 'products', component: Products }
+            { path: 'products', component: Products },
+            { path: 'movements', component: Movements }
         ]
     }
 
 ]
-
-//  router.beforeEach(async (to, from, next) => {  
-
-//     next()
-//  })
-
 
 export const router = createRouter({
     history: createWebHashHistory(),

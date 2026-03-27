@@ -12,7 +12,7 @@
                         <div class="text-subtitle2 text-grey-6">Administra tu inventario</div>
                     </div>
                 </div>
-                <Button label="Agregar" icon="add" @click="modalProducto = true, cleanInfo()" color="primary"
+                <Button label="Agregar" icon="add" @click="modalProduct = true, cleanInfo()" color="primary"
                     size="md" />
             </div>
         </div>
@@ -20,11 +20,11 @@
         <div class="row q-gutter-md q-mb-md">
             <div class="col-3 col-xs-11 col-sm-5 col-md-3">
                 <q-input label="Buscar por nombre o referencia" debounce="500" v-model="filters.search"
-                    @update:model-value="getproductos" label-color="primary" dense clearable outlined />
+                    @update:model-value="getproducts" label-color="primary" dense clearable outlined />
             </div>
             <div class="col-1 col-xs-11 col-sm-3 col-md-2">
                 <q-select v-model="filters.stock" label="Estado" :options="status" emit-value map-options
-                    @update:model-value="getproductos" label-color="primary" dense outlined />
+                    @update:model-value="getproducts" label-color="primary" dense outlined />
             </div>
         </div>
 
@@ -40,33 +40,12 @@
                             size="ld" />
                     </td>
                 </template>
-
-                <template #status="props">
-                    <td class="text-center">
-                        <Qchip :color="props.row.status == 0 ? 'green' : 'red'" text-color="white"
-                            :label="props.row.status == 0 ? 'Activo' : 'Inactivo'" size="ld" />
-                    </td>
-                </template>
-
-                <template #options="props">
-                    <td class="text-center">
-                        <buttonsTable icon="visibility" color="primary" size="24px" @click="openPreview(props.row)"
-                            tooltip="Vista Previa" />
-                        <buttonsTable icon="edit" color="grey-7" size="24px"
-                            @click="$router.push(`/app/productos/edit/${props.row.id}`)"
-                            :disable="props.row.status == 1" tooltip="Editar" />
-                        <buttonsTable :icon="props.row.status == 0 ? 'block' : 'check_circle'"
-                            :color="props.row.status == 0 ? 'red' : 'green'" size="24px"
-                            @click="updateStatus(props.row)"
-                            :tooltip="props.row.status == 0 ? 'Inactivar' : 'Activar'" />
-                    </td>
-                </template>
             </Table>
         </q-card>
     </q-page>
 
     <!-- MODAL CREAR PRODUCTO -->
-    <Modal v-model="modalProducto" :form-ref="true" @submit="saveProduct" :persistent="true" width="600px">
+    <Modal v-model="modalProduct" :form-ref="true" @submit="saveProduct" :persistent="true" width="600px">
         <template #header>
             <div class="flex justify-between items-center">
                 <div class="text-h6 q-px-md q-py-md">Crear Producto</div>
@@ -131,7 +110,7 @@ import Modal from '../components/Modal.vue';
 const { error, success } = useNotifications();
 
 // Modal variables
-const modalProducto = ref(false);
+const modalProduct = ref(false);
 
 
 const formProduct = ref({
@@ -185,10 +164,10 @@ const getPagination = (props) => {
         rowsNumber: props.pagination.rowsNumber
     }
 
-    getproductos()
+    getproducts()
 }
 
-const getproductos = async () => {
+const getproducts = async () => {
     loandingTable.value = true
     try {
         const res = await getData(`/products`, {
@@ -235,9 +214,9 @@ const saveProduct = async () => {
             min_stock: parseInt(formProduct.value.minStock),
         });
         success(res.msg);
-        modalProducto.value = false;
+        modalProduct.value = false;
         cleanInfo();
-        getproductos();
+        getproducts();
     } catch (err) {
         console.log(err);
         error(err.response.data?.errors?.[0] || err.response.data.msg || 'Error al crear el producto');
@@ -247,7 +226,7 @@ const saveProduct = async () => {
 }
 
 onMounted(() => {
-    getproductos()
+    getproducts()
 })
 
 </script>

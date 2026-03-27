@@ -11,7 +11,7 @@
                 <p class="description">MVP para controlar bodega y alertar cuando el stock es crítico</p>
             </div>
 
-            <Button label="Iniciar Sesión" @click="$router.push('/app/home')" color="primary" padding="10px" size="md" :outline="false" />
+            <Button label="Iniciar Sesión" @click="$router.push('/app/products')" color="primary" padding="10px" size="md" :outline="false" />
 
             <div class="footer">
                 <p>Jhonatan Steven García Gómez</p>
