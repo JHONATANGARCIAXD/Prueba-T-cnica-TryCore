@@ -157,6 +157,61 @@ El servidor expone los siguientes endpoints base:
 | Comando | Descripción |
 |---------|-------------|
 | `npm run dev` | Inicia el servidor en modo desarrollo (con nodemon) |
+| `npm test` | Ejecuta los tests unitarios e integración con Jest |
+
+---
+
+## 🧪 Pruebas (Tests)
+
+El proyecto está configurado con **Jest** y **Supertest** para testing.
+
+### Ejecutar Tests
+
+```bash
+npm test
+```
+
+**Resultado esperado:**
+```
+PASS  test/test.js
+  GET /products
+    ✓ retornaria los productos (XX ms)
+
+Tests:       1 passed, 1 total
+```
+
+### Tests Disponibles
+
+#### GET /api/products
+```javascript
+// Verifica que el endpoint retorna status 200
+// y que la respuesta contiene la propiedad "msg"
+it("retornaria los productos", async () => {
+    const res = await supertest(app).get("/api/products");
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty("msg");
+});
+```
+
+### Agregar Nuevos Tests
+
+Edita `test/test.js` y añade más tests siguiendo este patrón:
+
+```javascript
+describe("GET /movements", () => {
+    it("retornaria los movimientos", async () => {
+        const res = await supertest(app).get("/api/movements");
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty("msg");
+    });
+});
+```
+
+### Tecnologías de Testing
+
+- **Jest**: Framework de testing
+- **Supertest**: Cliente HTTP para testing de endpoints
+- **Babel**: Transpilador para soporte de ES modules
 
 ---
 
