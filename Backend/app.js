@@ -2,7 +2,6 @@ import express from "express"
 import cors from "cors"
 import { routerProducts } from "./routes/products.route.js"
 import { routerMovements } from "./routes/movements.route.js"
-import e from "express"
 
 const app = express()
 
