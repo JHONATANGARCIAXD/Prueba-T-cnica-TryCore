@@ -21,7 +21,7 @@ Bienvenido a la guía de instalación completa del proyecto TryCore. Sigue estos
 ### Backend
 - **Lenguaje**: JavaScript (Node.js)
 - **Framework**: Express 5.2.1
-- **Base de Datos**: PostgreSQL
+- **Base de Datos**: Supabase (PostgreSQL en la nube)
 - **ORM/Driver**: pg (node-postgres)
 - **Validación**: express-validator
 - **Middleware**: CORS, dotenv
@@ -86,8 +86,7 @@ cd Prueba-T-cnica-TryCore
 Prueba-T-cnica-TryCore/
 ├── Backend/          ← Backend Node.js + Express
 ├── Frontend/         ← Frontend Vue 3 + Quasar
-├── INSTALACION.md    ← Este archivo
-└── .git/
+├── readme.md         ← Este archivo
 ```
 
 ---
@@ -246,7 +245,7 @@ VITE v7.1.2  ready in XXX ms
 1. **Backend funcionando**
    - [ ] Terminal muestra "Server is running on port 3000"
    - [ ] Terminal muestra "Database Connected"
-   - [ ] Navega a `http://localhost:3000/api/products` (debería ver un JSON o lista vacía)
+   - [ ] Navega a `http://localhost:3000/api/products` (deberías ver un JSON o lista vacía)
 
 2. **Frontend funcionando**
    - [ ] Terminal muestra "Local: http://localhost:5173/"
@@ -385,10 +384,13 @@ npm install
 ```
 Backend/
 ├── app.js                      # Configuración principal de Express
-├── db.config.js                # Configuración de PostgreSQL
+├── server.js                   # Punto de entrada del servidor
+├── db.config.js                # Configuración de Supabase
 ├── package.json                # Dependencias
 ├── .env                        # Variables de entorno (CREAR)
-├── readme.md                   # Guía detallada del backend
+├── README.md                   # Guía detallada del backend
+├── jest.config.js              # Configuración de tests
+├── test/                       # Tests automáticos
 ├── controllers/                # Lógica de negocio
 ├── middleware/                 # Middleware de validación
 ├── models/                     # Scripts SQL de tablas
@@ -424,6 +426,7 @@ Una vez que todo esté funcionando:
 
 3. **Debuggea**:
    - Backend: Revisa los logs en la terminal
+   - Backend: Ejecuta tests con `npm test`
    - Frontend: Abre DevTools (F12) → Console
 
 ---
@@ -434,10 +437,10 @@ Si tienes problemas:
 
 1. **Revisa los logs** en ambas terminales
 2. **Consulta la documentación específica**:
-   - Backend: [Backend/readme.md](Backend/readme.md)
+   - Backend: [Backend/README.md](Backend/README.md)
    - Frontend: [Frontend/README.md](Frontend/README.md)
 3. **Verifica que todas las URL** sean `localhost` y los puertos correctos (3000 y 5173)
-4. **Reinicia PostgreSQL** si hay problemas de conexión
+4. **Verifica Supabase** si hay problemas de conexión a la base de datos
 
 ---
 
